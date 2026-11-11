@@ -1,0 +1,92 @@
+[
+  {
+    "properties": {
+      "name": "主校区起降点",
+      "campus": "主校区",
+      "seivice type": "货物起降，换电",
+      "status": "模拟选址",
+      "feature_id": "F01",
+      "service_type": "货物起降，换电",
+      "layer": "landing_site"
+    },
+    "longitude": 114.4051558,
+    "latitude": 30.5110912,
+    "x_m": 250984.09355555777,
+    "y_m": 3378284.676662885,
+    "row": 143,
+    "col": 455,
+    "grid_id": "R143_C455",
+    "inside_study_area": true,
+    "point_in_exclusion_geometry": false,
+    "grid_cell_blocked": false,
+    "distance_to_nearest_exclusion_m": 4866.03607807661,
+    "reachable_from_first_node_spatial_mask_only": true
+  },
+  {
+    "properties": {
+      "name": "军山校区起降点",
+      "campus": "军山校区",
+      "seivice type": "货物起降点",
+      "status": "大概位置",
+      "feature_id": "F03",
+      "service_type": "货物起降点",
+      "layer": "landing_site"
+    },
+    "longitude": 114.0985099,
+    "latitude": 30.3508539,
+    "x_m": 221088.86334819853,
+    "y_m": 3361234.2048431803,
+    "row": 313,
+    "col": 156,
+    "grid_id": "R313_C156",
+    "inside_study_area": true,
+    "point_in_exclusion_geometry": false,
+    "grid_cell_blocked": false,
+    "distance_to_nearest_exclusion_m": 5969.321010946078,
+    "reachable_from_first_node_spatial_mask_only": true
+  },
+  {
+    "properties": {
+      "name": "同济校区起降点",
+      "campus": "同济校区",
+      "seivice type": "货物起降，换电",
+      "status": "大概位置",
+      "feature_id": "F04",
+      "service_type": "货物起降，换电",
+      "layer": "landing_site"
+    },
+    "longitude": 114.2544737,
+    "latitude": 30.5837045,
+    "x_m": 236714.77412839403,
+    "y_m": 3386678.5089836395,
+    "row": 59,
+    "col": 313,
+    "grid_id": "R059_C313",
+    "inside_study_area": true,
+    "point_in_exclusion_geometry": false,
+    "grid_cell_blocked": false,
+    "distance_to_nearest_exclusion_m": 692.0673029722038,
+    "reachable_from_first_node_spatial_mask_only": true
+  },
+  {
+    "properties": {
+      "name": "三校区中转站",
+      "seivice type": "换电，备降",
+      "feature_id": "F05",
+      "service_type": "换电，备降",
+      "layer": "support_site"
+    },
+    "longitude": 114.2490262,
+    "latitude": 30.4791766,
+    "x_m": 235909.26938911225,
+    "y_m": 3375101.2855305653,
+    "row": 174,
+    "col": 305,
+    "grid_id": "R174_C305",
+    "inside_study_area": true,
+    "point_in_exclusion_geometry": false,
+    "grid_cell_blocked": false,
+    "distance_to_nearest_exclusion_m": 1138.343496639974,
+    "reachable_from_first_node_spatial_mask_only": true
+  }
+]

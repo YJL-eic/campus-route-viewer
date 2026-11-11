@@ -1,0 +1,388 @@
+{
+  "bundle_date": "2026-11-05",
+  "grid": "EPSG:32650, 100 m, 440 rows x 521 cols",
+  "population_year": 2023,
+  "landcover_year": 2021,
+  "exclusion_version": "v2, includes newly drawn large restriction area",
+  "raster_layers": [
+    {
+      "file": "population_2023_100m.tif",
+      "meaning": "2023年每格有效来源部分的估计人数；不是密度",
+      "units": "people",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "0283087835b2bff97eb2e770669281f26d486ba1e387033df07a2dabfa124572"
+    },
+    {
+      "file": "population_valid_coverage_100m.tif",
+      "meaning": "每格研究范围部分的有效人口源值覆盖率",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "ed19a451cf9ec0b89a535715a860916fb0d33aeb1a3c551227db4247a9b8cf76"
+    },
+    {
+      "file": "study_area_fraction_100m.tif",
+      "meaning": "每格位于研究范围内的面积比例",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "f03b9ccb4a872546d22dae1c6e9ce1f6791a49484ef78b754fdcd5a42cfe7ee9"
+    },
+    {
+      "file": "restriction_100m.tif",
+      "meaning": "3个手绘参考限制区域，含新增的大区域",
+      "units": "0/1;255=NoData",
+      "dtype": "uint8",
+      "nodata": 255.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "3c39628550bb05bd4aab2a9ea94ba7720588a31bd182cfbdcf777aaa7b408614"
+    },
+    {
+      "file": "building_obstacle_100m.tif",
+      "meaning": "4个手绘超高建筑区域的平面避让掩膜",
+      "units": "0/1;255=NoData",
+      "dtype": "uint8",
+      "nodata": 255.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "9d6c16ddc124cf62ab45b9aa0afee032d5dafc1cf631958834271e1e178f1e07"
+    },
+    {
+      "file": "blocked_100m.tif",
+      "meaning": "限制区域与建筑区域合并的最终模型禁行掩膜",
+      "units": "0/1;255=NoData",
+      "dtype": "uint8",
+      "nodata": 255.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "5bd7cfefc723185fdebbd62f577278540d9c1394d421a232cea2e9b50ab71ed6"
+    },
+    {
+      "file": "blocked_fraction_100m.tif",
+      "meaning": "每格研究范围部分的合并避让面积比例",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "ce8ff3b016ca1538e179a54b8c67296edaac2501a5c652ea47f63d15e6dbe352"
+    },
+    {
+      "file": "landcover_dominant_100m.tif",
+      "meaning": "2021年主要地表覆盖类别；不是城市功能用地",
+      "units": "ESA WorldCover codes;255=NoData",
+      "dtype": "uint8",
+      "nodata": 255.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "0df23f6070b28a74df83b7c9c3d54b5d99dfb7a4206e97112aade96be665cd93"
+    },
+    {
+      "file": "water_fraction_100m.tif",
+      "meaning": "每格有效地表覆盖样本中的永久水体比例",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "d08e44275c13b23bdc2a9a92260a6e5a864b91ce7cd8cf119176c42342ab95d1"
+    },
+    {
+      "file": "builtup_fraction_100m.tif",
+      "meaning": "每格有效地表覆盖样本中的建成区比例；不是建筑占地率",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "12cc49a85fe9730bc724e727b18f9b1e66e0b03d3815f151d857e785883d51dd"
+    },
+    {
+      "file": "vegetation_fraction_100m.tif",
+      "meaning": "每格有效地表覆盖样本中的植被合并比例",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "ac9ebc62ad0a2364eab826f9a577b5fc612ef582b1369e7db47202d69adee5e0"
+    },
+    {
+      "file": "landcover_valid_coverage_100m.tif",
+      "meaning": "每格研究范围样本中地表覆盖分类有效的比例",
+      "units": "fraction",
+      "dtype": "float32",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "sha256": "4f5cbd28be2dc6a4e5c9048d7fe09e319c738246e3b88bc1a85fdac352670101"
+    },
+    {
+      "file": "风场/case00_calm/wind_speed_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_160m; m/s",
+      "source_time_local": "None",
+      "sha256": "b8f445c9bbdb1dae980cead0fde3592eaf38cc6412cb3e19a6b2193533998ea1"
+    },
+    {
+      "file": "风场/case00_calm/wind_speed_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_210m; m/s",
+      "source_time_local": "None",
+      "sha256": "50d3f9fb7f8893a9d476b8bbec874e6e0c5db1bf64d8f27c083cf02b9a176196"
+    },
+    {
+      "file": "风场/case00_calm/wind_u_east_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_160m; m/s",
+      "source_time_local": "None",
+      "sha256": "f1c8a2bee7e563ebe2f86ca0d76472341b5f3e24674d8513515f9908c5d70556"
+    },
+    {
+      "file": "风场/case00_calm/wind_u_east_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_210m; m/s",
+      "source_time_local": "None",
+      "sha256": "307a6bfeba606e297576a6d2d0e1e43a2a2b400d83867c4708ab0943cd55c57d"
+    },
+    {
+      "file": "风场/case00_calm/wind_v_north_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_160m; m/s",
+      "source_time_local": "None",
+      "sha256": "71b3b62612cefc2b4a811717a5bded95959b9fb88dc0c91278c0da368c7f9de0"
+    },
+    {
+      "file": "风场/case00_calm/wind_v_north_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_210m; m/s",
+      "source_time_local": "None",
+      "sha256": "7ee1b0946a50bc68a9122be0f85f72618a27b0d1e4f24cef33d15c3ae56027ba"
+    },
+    {
+      "file": "风场/case01_low/wind_speed_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_160m; m/s",
+      "source_time_local": "2026-10-08T15:00",
+      "sha256": "2097ee34c7c3b9342e01de5d39c67d48f997411b51fe4fce3ce04d36a2497435"
+    },
+    {
+      "file": "风场/case01_low/wind_speed_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_210m; m/s",
+      "source_time_local": "2026-10-08T15:00",
+      "sha256": "eafda4a7e4264d44d31b19fb3622b45f9dd9196cbf28fc17c8d320f903033d7b"
+    },
+    {
+      "file": "风场/case01_low/wind_u_east_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_160m; m/s",
+      "source_time_local": "2026-10-08T15:00",
+      "sha256": "bdb5b78fd2e6ec8adf1a0b4ce6f7e002c4a70fd60ac6632e1f2b6eb09b684a60"
+    },
+    {
+      "file": "风场/case01_low/wind_u_east_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_210m; m/s",
+      "source_time_local": "2026-10-08T15:00",
+      "sha256": "98040e4fcd6da9cbd5655e394b0f016ecb7bc21eb45db9257f9bb0a1c8d6ac04"
+    },
+    {
+      "file": "风场/case01_low/wind_v_north_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_160m; m/s",
+      "source_time_local": "2026-10-08T15:00",
+      "sha256": "dcd2d0ba47604d8a0a6dd4f134624bd805b3a3d0992c90e94df0726c897d6d52"
+    },
+    {
+      "file": "风场/case01_low/wind_v_north_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_210m; m/s",
+      "source_time_local": "2026-10-08T15:00",
+      "sha256": "b02a9e4baf5742d0c5c6126eaa1c3a96adee44807780f072779f6d6c712e3907"
+    },
+    {
+      "file": "风场/case02_median/wind_speed_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_160m; m/s",
+      "source_time_local": "2026-10-28T13:00",
+      "sha256": "bc570e93766896ed45c1bd94e18900e64d71672082e5c0c5f5b2d3607caa8177"
+    },
+    {
+      "file": "风场/case02_median/wind_speed_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_210m; m/s",
+      "source_time_local": "2026-10-28T13:00",
+      "sha256": "c0126e1b5cc7c7021f2dabdcb51f0899230d5eddb376751ed996b049c6fc0804"
+    },
+    {
+      "file": "风场/case02_median/wind_u_east_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_160m; m/s",
+      "source_time_local": "2026-10-28T13:00",
+      "sha256": "a4804895c7995cda6494e9916aa1434a42f202106817f0ba9fc23e68a8e21802"
+    },
+    {
+      "file": "风场/case02_median/wind_u_east_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_210m; m/s",
+      "source_time_local": "2026-10-28T13:00",
+      "sha256": "51863fee659a8abaf8a793a0d853dcec75727c38b6b944185d71934c9e0882fb"
+    },
+    {
+      "file": "风场/case02_median/wind_v_north_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_160m; m/s",
+      "source_time_local": "2026-10-28T13:00",
+      "sha256": "4c4cce8b8bb3bdbfe776a14d2a95f2ed5013da99a16d64add0717fbf20feaef7"
+    },
+    {
+      "file": "风场/case02_median/wind_v_north_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_210m; m/s",
+      "source_time_local": "2026-10-28T13:00",
+      "sha256": "ab7fb6b4bff198bbc7acd1baff938b5cdd70ba9417a0e241730bafb34d257f0e"
+    },
+    {
+      "file": "风场/case03_high/wind_speed_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_160m; m/s",
+      "source_time_local": "2026-10-17T10:00",
+      "sha256": "d7600bceaae9e459e0c7966cba15b392098fb88ea8269902cdaeef97026768ff"
+    },
+    {
+      "file": "风场/case03_high/wind_speed_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "speed_210m; m/s",
+      "source_time_local": "2026-10-17T10:00",
+      "sha256": "da0994d7159f38b941108abc0518138d5459b3dfe924270315c3fc522abf932e"
+    },
+    {
+      "file": "风场/case03_high/wind_u_east_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_160m; m/s",
+      "source_time_local": "2026-10-17T10:00",
+      "sha256": "e917c660c0d2d0d7effd6681239e85245ec1b8c27c61b367869f01d56833ef78"
+    },
+    {
+      "file": "风场/case03_high/wind_u_east_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "u_east_210m; m/s",
+      "source_time_local": "2026-10-17T10:00",
+      "sha256": "0a2a0713679d864669bab21298469f48de5fc7a3dedb28bcd3921cfa3b211935"
+    },
+    {
+      "file": "风场/case03_high/wind_v_north_160m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_160m; m/s",
+      "source_time_local": "2026-10-17T10:00",
+      "sha256": "edfe1b2a95687ec1a4b3fab27d1ed563b33f468e7d7ac73f11705556c016a771"
+    },
+    {
+      "file": "风场/case03_high/wind_v_north_210m.tif",
+      "units": "m/s",
+      "nodata": -99999.0,
+      "rows": 440,
+      "cols": 521,
+      "meaning": "v_north_210m; m/s",
+      "source_time_local": "2026-10-17T10:00",
+      "sha256": "872dea24dc7fc94a9e2d5395ff22990a4cc60a188a5c56d3e18ef835d2a25036"
+    }
+  ],
+  "checks": {
+    "all_model_rasters_exactly_aligned": true,
+    "copied_rasters_identical_to_sources": true,
+    "fraction_ranges_valid": true,
+    "feature_count": 12,
+    "node_count": 4,
+    "restriction_areas": 3,
+    "building_areas": 4,
+    "wind_rasters_exactly_aligned": true,
+    "wind_triangle_direction_tests_passed": true,
+    "total_raster_layers": 36
+  },
+  "bundle_revision": "v5: water independent cost disabled; green relative preference included in main model",
+  "wind_native_resolution_km_approx": 9,
+  "wind_height_reference": "AGL",
+  "wind_vertical_approximation": "160m vector interpolation; 210m vector extrapolation; source API heights may also include provider-derived products",
+  "algorithm_specification": "算法指标使用说明.md",
+  "algorithm_specification_status": "Updated recommended model policy; spatial/wind data unchanged; complete optimization not implemented.",
+  "model_policy": "当前模型规则.json"
+}

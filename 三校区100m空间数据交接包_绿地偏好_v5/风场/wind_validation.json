@@ -1,0 +1,52 @@
+{
+  "period": "2026-10-01 to 2026-10-31",
+  "source_points": 71,
+  "hours": 744,
+  "height_reference": "AGL",
+  "northbound_m": 210,
+  "southbound_m": 160,
+  "scenario_count": 4,
+  "raster_layers_added": 24,
+  "all_grids_aligned": true,
+  "all_active_wind_values_finite": true,
+  "vertical_method_explicit": true,
+  "native_resolution_km_approx": 9,
+  "cases": [
+    {
+      "id": "case00_calm",
+      "label": "无风对照",
+      "source_type": "synthetic zero-wind control",
+      "time_local": null
+    },
+    {
+      "id": "case01_low",
+      "label": "较低风速样本",
+      "source_type": "actual archived model hour, with vertical approximation",
+      "time_local": "2026-10-08T15:00",
+      "target_quantile": 0.1,
+      "quantile_reference_speed_mps": 1.2567951660076455,
+      "source_area_mean_speed_160m_mps": 1.2382569986819578,
+      "source_area_mean_speed_210m_mps": 1.2753333333333332
+    },
+    {
+      "id": "case02_median",
+      "label": "中位风速样本",
+      "source_type": "actual archived model hour, with vertical approximation",
+      "time_local": "2026-10-28T13:00",
+      "target_quantile": 0.5,
+      "quantile_reference_speed_mps": 3.537165124984071,
+      "source_area_mean_speed_160m_mps": 3.4776635833014753,
+      "source_area_mean_speed_210m_mps": 3.596666666666667
+    },
+    {
+      "id": "case03_high",
+      "label": "较高风速样本",
+      "source_type": "actual archived model hour, with vertical approximation",
+      "time_local": "2026-10-17T10:00",
+      "target_quantile": 0.9,
+      "quantile_reference_speed_mps": 7.875559309227871,
+      "source_area_mean_speed_160m_mps": 7.339451951789074,
+      "source_area_mean_speed_210m_mps": 8.411666666666667
+    }
+  ]
+}

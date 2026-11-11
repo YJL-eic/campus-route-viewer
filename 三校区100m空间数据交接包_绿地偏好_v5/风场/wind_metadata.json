@@ -1,0 +1,86 @@
+{
+  "source": "Open-Meteo historical forecast archive, ECMWF IFS",
+  "data_kind": "archived numerical weather forecast model values; not station observations or ERA5",
+  "source_model": "ecmwf_ifs",
+  "nominal_native_resolution_km": 9,
+  "source_heights_agl_m": [
+    120,
+    180,
+    200
+  ],
+  "target_heights_agl_m": {
+    "northbound": 210,
+    "southbound": 160
+  },
+  "period_start": "2026-10-01",
+  "period_end": "2026-10-31",
+  "timezone": "Asia/Shanghai",
+  "request_url": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=30.1%2C30.1%2C30.1%2C30.1%2C30.1%2C30.1%2C30.1%2C30.1%2C30.1%2C30.2%2C30.2%2C30.2%2C30.2%2C30.2%2C30.2%2C30.2%2C30.2%2C30.2%2C30.3%2C30.3%2C30.3%2C30.3%2C30.3%2C30.3%2C30.3%2C30.3%2C30.3%2C30.4%2C30.4%2C30.4%2C30.4%2C30.4%2C30.4%2C30.4%2C30.4%2C30.4%2C30.5%2C30.5%2C30.5%2C30.5%2C30.5%2C30.5%2C30.5%2C30.5%2C30.5%2C30.6%2C30.6%2C30.6%2C30.6%2C30.6%2C30.6%2C30.6%2C30.6%2C30.6%2C30.7%2C30.7%2C30.7%2C30.7%2C30.7%2C30.7%2C30.7%2C30.7%2C30.7%2C30.8%2C30.8%2C30.8%2C30.8%2C30.8%2C30.8%2C30.8%2C30.8%2C30.8&longitude=113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6%2C113.8%2C113.9%2C114.0%2C114.1%2C114.2%2C114.3%2C114.4%2C114.5%2C114.6&start_date=2026-10-01&end_date=2026-10-31&models=ecmwf_ifs&hourly=wind_speed_120m%2Cwind_direction_120m%2Cwind_speed_180m%2Cwind_direction_180m%2Cwind_speed_200m%2Cwind_direction_200m&wind_speed_unit=ms&timezone=Asia%2FShanghai&cell_selection=nearest",
+  "documentation": "https://open-meteo.com/en/docs/historical-forecast-api",
+  "request_point_count": 72,
+  "unique_returned_location_count": 71,
+  "hour_count": 744,
+  "speed_unit": "m/s",
+  "direction_convention": "meteorological FROM direction, clockwise degrees from true north",
+  "license": "CC BY 4.0; attribution Open-Meteo and ECMWF",
+  "limitations": "One October month, not annual climatology; coarse regional model, not street-level winds. 160m and 210m target winds require explicit vertical approximation.",
+  "source_points_inside_study": 15,
+  "source_point_storage_order": "point x local_hour",
+  "grid_shape": [
+    440,
+    521
+  ],
+  "grid_cell_size_m": 100,
+  "grid_matches_static_layers": true,
+  "northbound_height_agl_m": 210,
+  "southbound_height_agl_m": 160,
+  "vertical_approximation": {
+    "160m": "u160=u120/3+2*u180/3; v160=v120/3+2*v180/3",
+    "210m": "u210=1.5*u200-0.5*u180; v210=1.5*v200-0.5*v180"
+  },
+  "spatial_interpolation": "linear interpolation on triangulation of actual returned model locations, using east/north vector components",
+  "scenario_selection": "Regional mean of both derived layer speeds at source points inside study polygon; actual local 08:00-18:00 hours nearest P10/P50/P90 in October 2026. Not regulatory wind classes.",
+  "scenario_duration_assumption": "Each representative scenario freezes the wind field for one modeled route evaluation; full hourly data retained for time-dependent extension.",
+  "cases": [
+    {
+      "id": "case00_calm",
+      "label": "无风对照",
+      "source_type": "synthetic zero-wind control",
+      "time_local": null,
+      "index": null
+    },
+    {
+      "id": "case01_low",
+      "label": "较低风速样本",
+      "source_type": "actual archived model hour, with vertical approximation",
+      "time_local": "2026-10-08T15:00",
+      "index": 183,
+      "target_quantile": 0.1,
+      "quantile_reference_speed_mps": 1.2567951660076455,
+      "source_area_mean_speed_160m_mps": 1.2382569986819578,
+      "source_area_mean_speed_210m_mps": 1.2753333333333332
+    },
+    {
+      "id": "case02_median",
+      "label": "中位风速样本",
+      "source_type": "actual archived model hour, with vertical approximation",
+      "time_local": "2026-10-28T13:00",
+      "index": 661,
+      "target_quantile": 0.5,
+      "quantile_reference_speed_mps": 3.537165124984071,
+      "source_area_mean_speed_160m_mps": 3.4776635833014753,
+      "source_area_mean_speed_210m_mps": 3.596666666666667
+    },
+    {
+      "id": "case03_high",
+      "label": "较高风速样本",
+      "source_type": "actual archived model hour, with vertical approximation",
+      "time_local": "2026-10-17T10:00",
+      "index": 394,
+      "target_quantile": 0.9,
+      "quantile_reference_speed_mps": 7.875559309227871,
+      "source_area_mean_speed_160m_mps": 7.339451951789074,
+      "source_area_mean_speed_210m_mps": 8.411666666666667
+    }
+  ]
+}

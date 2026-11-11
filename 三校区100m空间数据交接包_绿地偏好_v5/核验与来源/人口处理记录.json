@@ -1,0 +1,53 @@
+{
+  "source": {
+    "path": "D:\\临时综合文件夹\\低空航路规划\\数据库\\chn_pop_2023_CN_100m_R2025A_v1.tif",
+    "filename": "chn_pop_2023_CN_100m_R2025A_v1.tif",
+    "crs": "EPSG:4326",
+    "shape": [
+      45337,
+      73530
+    ],
+    "resolution_degrees": [
+      0.00083333333,
+      0.00083333333
+    ],
+    "nodata": -99999.0,
+    "tags": {
+      "TIFFTAG_DOCUMENTNAME": "chn_pop_2023_CN_100m_R2025A_v1",
+      "TIFFTAG_IMAGEDESCRIPTION": "CHN population 2023 [WorldPop R2025A v1]",
+      "TIFFTAG_DATETIME": "2025-07-17 11:33:23",
+      "TIFFTAG_COPYRIGHT": "CC-BY-4.0",
+      "Description": "CHN population 2023 [WorldPop R2025A v1]",
+      "AREA_OR_POINT": "Area"
+    },
+    "band_tags": {
+      "STATISTICS_MINIMUM": "0",
+      "STATISTICS_MAXIMUM": "2001.7869873047",
+      "STATISTICS_MEAN": "8.6467191654004",
+      "STATISTICS_STDDEV": "22.838679925923",
+      "STATISTICS_VALID_PERCENT": "4.941"
+    },
+    "population_year": 2023,
+    "units": "people per source pixel",
+    "source_page": "https://hub.worldpop.org/geodata/summary?id=72925",
+    "doi": "10.5258/SOTON/WP00839"
+  },
+  "native_clip_shape": [
+    481,
+    643
+  ],
+  "output_shape": [
+    440,
+    521
+  ],
+  "bbox_cells": 229240,
+  "study_area_cells": 154857,
+  "cells_with_valid_source_population": 112672,
+  "source_valid_area_fraction": 0.6501447911706902,
+  "study_area_km2": 1538.9108497998104,
+  "estimated_population_on_valid_source_area": 7038275.129043676,
+  "float64_conservation_relative_error": 3.969676764008606e-16,
+  "float32_output_relative_error": 1.5365216134354032e-10,
+  "native_clip_touched_pixel_count_sum": 7069725.939105548,
+  "method": "Area-weighted intersection of projected source pixel footprints, study polygon, and 100m cells. Source counts assumed uniform within each original pixel. NoData excluded and not imputed as zero."
+}

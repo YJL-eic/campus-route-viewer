@@ -1,0 +1,45 @@
+{
+  "access_date_utc": "2026-11-05T09:04:44.949659+00:00",
+  "worldcover_product": "ESA WorldCover 2021 v200",
+  "worldcover_page": "https://esa-worldcover.org/en/data-access",
+  "worldcover_doi": "10.5281/zenodo.7254221",
+  "source_bbox": [
+    113.9369294,
+    30.2368986,
+    114.471879,
+    30.6367821
+  ],
+  "worldcover_files": [
+    {
+      "tile": "N30E111",
+      "url": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N30E111_Map.tif",
+      "local": "C:\\Users\\AS\\Documents\\ChatGPT\\低空航路\\公开补充数据100m\\原始数据\\worldcover_2021_N30E111_aoi.tif",
+      "shape": [
+        4800,
+        757
+      ],
+      "resolution_degrees": [
+        8.333333333333333e-05,
+        8.333333333333333e-05
+      ],
+      "crs": "EPSG:4326",
+      "nodata": 0.0
+    },
+    {
+      "tile": "N30E114",
+      "url": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N30E114_Map.tif",
+      "local": "C:\\Users\\AS\\Documents\\ChatGPT\\低空航路\\公开补充数据100m\\原始数据\\worldcover_2021_N30E114_aoi.tif",
+      "shape": [
+        4800,
+        5663
+      ],
+      "resolution_degrees": [
+        8.333333333333333e-05,
+        8.333333333333333e-05
+      ],
+      "crs": "EPSG:4326",
+      "nodata": 0.0
+    }
+  ],
+  "errors": []
+}

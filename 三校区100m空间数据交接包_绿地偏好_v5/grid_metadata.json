@@ -1,0 +1,25 @@
+{
+  "crs": "EPSG:32650",
+  "cell_size_m": 100.0,
+  "rows": 440,
+  "cols": 521,
+  "left_m": 205400.0,
+  "top_m": 3392600.0,
+  "right_m": 257500.0,
+  "bottom_m": 3348600.0,
+  "affine_first_six": [
+    100.0,
+    0.0,
+    205400.0,
+    0.0,
+    -100.0,
+    3392600.0
+  ],
+  "index_base": 0,
+  "row_direction": "north to south",
+  "col_direction": "west to east",
+  "nodata": -99999.0,
+  "population_year": 2023,
+  "cell_location_formula": "x_center=left+(col+0.5)*cell_size; y_center=top-(row+0.5)*cell_size",
+  "warning": "This is a newly generated grid. Regrid existing route-model layers to this exact origin, CRS and shape before combining."
+}

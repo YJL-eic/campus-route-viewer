@@ -1,0 +1,24 @@
+{
+  "status": "course-model design; not full optimizer implementation",
+  "hard_constraint_file": "blocked_100m.tif",
+  "population_role": "nonnegative relative ground-person exposure cost",
+  "wind_role": "directed edge travel time; performance infeasibility remains a hard condition",
+  "water_role": "background only; no independent penalty, reward or continuous-water-distance constraint",
+  "green_role": "relative preference in main model, expressed as nonnegative distance-weighted (1-G) cost",
+  "green_proxy_file": "vegetation_fraction_100m.tif",
+  "green_rationale_status": "hypothesized contingency benefit and lower ground consequences, not verified landing suitability",
+  "weights": {
+    "population": "nonnegative, selected through sensitivity study",
+    "green": "positive in main model; zero only as ablation control",
+    "water": 0
+  },
+  "height_agl_m": {
+    "northbound": 210,
+    "southbound": 160
+  },
+  "objective": "sum(t_edge/T0 + lambda_population*d_edge/L0*P_bar + lambda_green*d_edge/L0*(1-G_bar))",
+  "default_reference_units": {
+    "T0_seconds": 60,
+    "L0_meters": 1000
+  }
+}

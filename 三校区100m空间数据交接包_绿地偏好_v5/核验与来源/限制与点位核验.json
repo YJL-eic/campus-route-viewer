@@ -1,0 +1,237 @@
+{
+  "source": "D:\\临时综合文件夹\\低空航路规划\\底图.geojson",
+  "feature_count": 12,
+  "study_boundary_equal_to_population_boundary": true,
+  "all_geometries_valid": true,
+  "point_count": 4,
+  "restriction_polygon_count": 3,
+  "building_polygon_count": 4,
+  "classification_confirmation": "保留原用户确认分类；新增区域按用户layer字段分类",
+  "change_summary": {
+    "previous_feature_count": 11,
+    "added_feature_ids": [
+      "F12"
+    ],
+    "previous_blocked_cells": 3652,
+    "added_blocked_cells": 47787,
+    "removed_blocked_cells": 0
+  },
+  "original_property_issues_normalized": [
+    {
+      "feature_id": "F06",
+      "original_layer": null,
+      "original_campus": "restriction",
+      "normalized_layer": "restriction"
+    },
+    {
+      "feature_id": "F07",
+      "original_layer": null,
+      "original_campus": "restriction",
+      "normalized_layer": "restriction"
+    },
+    {
+      "feature_id": "F08",
+      "original_layer": null,
+      "original_campus": "bulidings",
+      "normalized_layer": "building_obstacle"
+    },
+    {
+      "feature_id": "F09",
+      "original_layer": "\trestriction",
+      "original_campus": null,
+      "normalized_layer": "building_obstacle"
+    },
+    {
+      "feature_id": "F10",
+      "original_layer": "\trestriction",
+      "original_campus": null,
+      "normalized_layer": "building_obstacle"
+    },
+    {
+      "feature_id": "F11",
+      "original_layer": "\trestriction",
+      "original_campus": null,
+      "normalized_layer": "building_obstacle"
+    },
+    {
+      "feature_id": "F12",
+      "original_layer": "\trestriction",
+      "original_campus": null,
+      "normalized_layer": "restriction"
+    }
+  ],
+  "areas": [
+    {
+      "feature_id": "F06",
+      "name": "禁飞区",
+      "layer": "restriction",
+      "valid_geometry": true,
+      "area_m2": 7468462.982795689,
+      "inside_study_area": true,
+      "area_inside_study_m2": 7468462.982795685,
+      "original_properties": {
+        "@circle": {
+          "type": "Mercator",
+          "center": [
+            114.2613099,
+            30.564482
+          ]
+        },
+        "name": "禁飞区",
+        "campus": "restriction",
+        "seivice type": "uom",
+        "model_blocked": 1,
+        "note": "120m_bulidings"
+      }
+    },
+    {
+      "feature_id": "F07",
+      "name": "禁飞区",
+      "layer": "restriction",
+      "valid_geometry": true,
+      "area_m2": 26307632.66572871,
+      "inside_study_area": true,
+      "area_inside_study_m2": 26307632.665728714,
+      "original_properties": {
+        "@circle": {
+          "type": "Mercator",
+          "center": [
+            114.220896,
+            30.5061531
+          ]
+        },
+        "name": "禁飞区",
+        "campus": "restriction",
+        "seivice type": "uom",
+        "model_blocked": 1,
+        "note": "必须避让"
+      }
+    },
+    {
+      "feature_id": "F08",
+      "name": "禁飞区",
+      "layer": "building_obstacle",
+      "valid_geometry": true,
+      "area_m2": 159223.49694655932,
+      "inside_study_area": true,
+      "area_inside_study_m2": 159223.4969465593,
+      "original_properties": {
+        "name": "禁飞区",
+        "campus": "bulidings",
+        "": "",
+        "model_blocked": 1,
+        "note": "120m_bulidings"
+      }
+    },
+    {
+      "feature_id": "F09",
+      "name": "禁飞区",
+      "layer": "building_obstacle",
+      "valid_geometry": true,
+      "area_m2": 137182.1124574509,
+      "inside_study_area": true,
+      "area_inside_study_m2": 137182.1124574509,
+      "original_properties": {
+        "name": "禁飞区",
+        "layer": "\trestriction",
+        "model_blocked": 1,
+        "note": "120m_bulidings"
+      }
+    },
+    {
+      "feature_id": "F10",
+      "name": "禁飞区",
+      "layer": "building_obstacle",
+      "valid_geometry": true,
+      "area_m2": 110480.72276846737,
+      "inside_study_area": true,
+      "area_inside_study_m2": 110480.72276846737,
+      "original_properties": {
+        "name": "禁飞区",
+        "layer": "\trestriction",
+        "model_blocked": 1,
+        "note": "120m_bulidings"
+      }
+    },
+    {
+      "feature_id": "F11",
+      "name": "禁飞区",
+      "layer": "building_obstacle",
+      "valid_geometry": true,
+      "area_m2": 122372.25894567641,
+      "inside_study_area": true,
+      "area_inside_study_m2": 122372.25894567641,
+      "original_properties": {
+        "name": "禁飞区",
+        "layer": "\trestriction",
+        "model_blocked": 1,
+        "note": "120m_bulidings"
+      }
+    },
+    {
+      "feature_id": "F12",
+      "name": "禁飞区",
+      "layer": "restriction",
+      "valid_geometry": true,
+      "area_m2": 473311106.8840529,
+      "inside_study_area": false,
+      "area_inside_study_m2": 471541354.1660972,
+      "original_properties": {
+        "name": "禁飞区",
+        "model_blocked": 1,
+        "layer": "\trestriction"
+      }
+    }
+  ],
+  "per_area_grid_checks": [
+    {
+      "feature_id": "F06",
+      "layer": "restriction",
+      "covered_grid_cells": 810
+    },
+    {
+      "feature_id": "F07",
+      "layer": "restriction",
+      "covered_grid_cells": 2749
+    },
+    {
+      "feature_id": "F08",
+      "layer": "building_obstacle",
+      "covered_grid_cells": 28
+    },
+    {
+      "feature_id": "F09",
+      "layer": "building_obstacle",
+      "covered_grid_cells": 24
+    },
+    {
+      "feature_id": "F10",
+      "layer": "building_obstacle",
+      "covered_grid_cells": 21
+    },
+    {
+      "feature_id": "F11",
+      "layer": "building_obstacle",
+      "covered_grid_cells": 20
+    },
+    {
+      "feature_id": "F12",
+      "layer": "restriction",
+      "covered_grid_cells": 47787
+    }
+  ],
+  "grid_shape": [
+    440,
+    521
+  ],
+  "cell_size_m": 100.0,
+  "study_area_cells": 154857,
+  "restriction_cells": 51346,
+  "building_cells": 93,
+  "union_blocked_cells": 51439,
+  "free_study_cells": 103418,
+  "exclusion_geometry_area_km2": 505.8467084057399,
+  "all_nodes_spatially_connected": true,
+  "connectivity_method": "8-neighbor grid with diagonal corner-cutting forbidden; population NoData is not treated as an obstacle in this connectivity check",
+  "limits": "This is a planar course-model check. No verification of legal airspace completeness, height clearance, timing, communication, energy or operations."
+}

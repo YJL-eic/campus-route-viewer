@@ -1,0 +1,74 @@
+{
+  "source_product": "ESA WorldCover 2021 v200",
+  "source_doi": "10.5281/zenodo.7254221",
+  "source_page": "https://esa-worldcover.org/en/data-access",
+  "source_year": 2021,
+  "grid_shape": [
+    440,
+    521
+  ],
+  "cell_size_m": 100,
+  "grid_matches_existing_population_and_masks": true,
+  "study_cells": 154857,
+  "cells_with_classification": 154756,
+  "study_cells_without_10m_sample": 101,
+  "classes": {
+    "10": {
+      "name": "树木覆盖",
+      "sampled_area_km2": 367.649,
+      "dominant_grid_cells": 36364
+    },
+    "20": {
+      "name": "灌木",
+      "sampled_area_km2": 0.0002,
+      "dominant_grid_cells": 0
+    },
+    "30": {
+      "name": "草地",
+      "sampled_area_km2": 126.8373,
+      "dominant_grid_cells": 10840
+    },
+    "40": {
+      "name": "农田",
+      "sampled_area_km2": 286.0532,
+      "dominant_grid_cells": 29271
+    },
+    "50": {
+      "name": "建成区",
+      "sampled_area_km2": 400.52950000000004,
+      "dominant_grid_cells": 43904
+    },
+    "60": {
+      "name": "裸地或稀疏植被",
+      "sampled_area_km2": 83.1427,
+      "dominant_grid_cells": 6336
+    },
+    "70": {
+      "name": "冰雪",
+      "sampled_area_km2": 0.0,
+      "dominant_grid_cells": 0
+    },
+    "80": {
+      "name": "永久水体",
+      "sampled_area_km2": 265.369,
+      "dominant_grid_cells": 27452
+    },
+    "90": {
+      "name": "草本湿地",
+      "sampled_area_km2": 9.331000000000001,
+      "dominant_grid_cells": 589
+    },
+    "95": {
+      "name": "红树林",
+      "sampled_area_km2": 0.0,
+      "dominant_grid_cells": 0
+    },
+    "100": {
+      "name": "苔藓地衣",
+      "sampled_area_km2": 0.0,
+      "dominant_grid_cells": 0
+    }
+  },
+  "method": "Reproject categorical source to aligned 10m subgrid with nearest-neighbor; aggregate class proportions within each 100m cell. Fractions are 10m-sampling approximations, not exact vector intersection areas.",
+  "facilities_status": "Not obtained: public Overpass endpoints returned 502 or timed out. No facility layer is included."
+}
