@@ -56,6 +56,8 @@ export function createLocaView(Loca, loca, nofly, campuses = []) {
   const vegHex = hexLayer(Loca, 126, efficientSource(Loca, "/data/vegetation.pbf"), VEG_GREEN, 280);
   // 丰舟90 V2 终端空域：R25/R50 柱体 + 南北走廊 + 160/210 保护带。
   const pads = createTerminalPadLayers(Loca, campuses);
+  // 高德 Loca 贴地呼吸红圈（官方 breath_red 序列帧）。
+  const breath = createBreathMarkers(Loca, campuses);
 
   const pulse = new Loca.PulseLineLayer({
     zIndex: 140,
@@ -65,7 +67,7 @@ export function createLocaView(Loca, loca, nofly, campuses = []) {
   });
   pulse.setSource(new Loca.GeoJSONSource({ data: EMPTY }));
   pulse.setStyle({
-    altitude: 800,
+    altitude: 180,
     lineWidth: 8,
     headColor: "#ffe08a",
     trailColor: "rgba(14, 116, 144, 0.55)",
@@ -83,11 +85,67 @@ export function createLocaView(Loca, loca, nofly, campuses = []) {
   loca.add(vegHex);
   loca.add(zones);
   pads.layers.forEach((layer) => loca.add(layer));
+  if (breath.core) loca.add(breath.core);
+  if (breath.ring) loca.add(breath.ring);
   loca.add(pulse);
   loca.add(plan);
   loca.add(trace);
   loca.animate.start();
-  return { loca, zones, heat, veg, popHex, vegHex, pads, lights, pulse, plan, trace };
+  return { loca, zones, heat, veg, popHex, vegHex, pads, breath, lights, pulse, plan, trace };
+}
+
+/** 三校区起降点：贴地红点 + 官方呼吸红圈闪烁（ScatterLayer）。 */
+function createBreathMarkers(Loca, campuses) {
+  const list = campuses || [];
+  if (!list.length || !Loca.ScatterLayer) return { core: null, ring: null };
+
+  const source = new Loca.GeoJSONSource({
+    data: {
+      type: "FeatureCollection",
+      features: list.map((campus) => ({
+        type: "Feature",
+        properties: { id: campus.id, name: campus.name },
+        geometry: { type: "Point", coordinates: [campus.lon, campus.lat] },
+      })),
+    },
+  });
+
+  // 实心红芯，始终贴地可见。
+  const core = new Loca.ScatterLayer({
+    zIndex: 155,
+    opacity: 1,
+    visible: true,
+    zooms: [2, 22],
+  });
+  core.setSource(source);
+  core.setStyle({
+    unit: "px",
+    size: [14, 14],
+    borderWidth: 2,
+    borderColor: "#ffffff",
+    color: "rgba(210, 40, 40, 0.95)",
+    altitude: 0,
+  });
+
+  // 呼吸扩散圈：官方 demo 红圈序列帧。
+  const ring = new Loca.ScatterLayer({
+    zIndex: 154,
+    opacity: 1,
+    visible: true,
+    zooms: [2, 22],
+  });
+  ring.setSource(source);
+  ring.setStyle({
+    unit: "px",
+    size: [72, 72],
+    borderWidth: 0,
+    altitude: 0,
+    animate: true,
+    duration: 900,
+    texture: "https://a.amap.com/Loca/static/loca-v2/demos/images/breath_red.png",
+  });
+
+  return { core, ring };
 }
 
 function setupMultiLights(Loca, loca, campuses) {
@@ -468,6 +526,34 @@ export function showRouteProfile(Loca, view, route, mode = "overview") {
   return profile;
 }
 
+/** 三校区闭环：把多段航迹叠到同一条高层线路上。 */
+export function showLoopProfile(Loca, view, legs, mode = "overview") {
+  if (!view?.plan) return null;
+  const feasible = (legs || []).filter((leg) => leg?.feasible && leg.cruise?.length);
+  if (!feasible.length) {
+    view.plan.hide();
+    view.trace.hide();
+    view.pulse?.hide();
+    return null;
+  }
+  const profiles = feasible.map((leg) => buildProfile(leg));
+  const all = profiles.flatMap((profile) => profile.all);
+  view.pulse?.hide();
+  view.plan.show();
+  view.plan.setSource(new Loca.GeoJSONSource({ data: lineData(all) }));
+  if (mode === "overview") {
+    view.trace.hide();
+    view.trace.setSource(new Loca.GeoJSONSource({ data: EMPTY }));
+    styleHighLine(view.plan, "#25CDEA", 10, OVERVIEW_Z);
+  } else {
+    view.trace.show();
+    view.trace.setSource(new Loca.GeoJSONSource({ data: EMPTY }));
+    styleHighLine(view.plan, "rgba(14, 116, 144, 0.35)", 8, FLIGHT_Z);
+    styleHighLine(view.trace, "#c25a26", 8, FLIGHT_Z);
+  }
+  return { profiles, all, height: Math.max(...profiles.map((profile) => profile.height || 0)) };
+}
+
 export function setRouteViewMode(Loca, view, route, profile, mode) {
   if (!view || !route?.feasible || !profile) return;
   applyRouteMode(Loca, view, route, profile, mode);
@@ -489,7 +575,8 @@ function applyRouteMode(Loca, view, route, profile, mode) {
   styleHighLine(view.trace, "#c25a26", 8, FLIGHT_Z);
 }
 
-const OVERVIEW_Z = 22;
+// 与高德建筑楼块同量级：按真实巡航高度（160/210 m）贴图，仅轻微抬升便于辨认。
+const OVERVIEW_Z = 1.2;
 const FLIGHT_Z = 1;
 
 function styleHighLine(layer, color, lineWidth, zScale) {

@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AMapLoader from "@amap/amap-jsapi-loader";
-import * as THREE from "three";
 import {
   createLocaView,
   setLayerMode,
   setRouteViewMode,
   showFlownProfile,
   showFlyingLine,
+  showLoopProfile,
   showRouteProfile,
 } from "./locaView.js";
 import { mountDrone } from "./droneModel.js";
 import { buildBatterySeries, flightTelemetry, readSoc } from "./batteryCurve.js";
 import { easeInOut, lerp, lerpAngle, poseOnTrack, prepareTrack } from "./flightSmooth.js";
+import SiteDetail from "./SiteDetail.jsx";
 
 const COCKPIT_MIN_MS = 62000;
 const RECHARGE_MS = 2500;
@@ -24,8 +25,6 @@ export default function App() {
   const markersRef = useRef([]);
   const timer = useRef(0);
   const playback = useRef(null);
-  const padCanvas = useRef(null);
-
   const [meta, setMeta] = useState(null);
   const [mapError, setMapError] = useState("");
   const [origin, setOrigin] = useState("main");
@@ -53,14 +52,18 @@ export default function App() {
   const [viewpoint, setViewpoint] = useState("overview");
   const [menu, setMenu] = useState("");
   const [mapReady, setMapReady] = useState(false);
+  const [flightMode, setFlightMode] = useState("leg"); // leg | loop
   const droneStop = useRef(null);
   const buildingsRef = useRef(null);
   const profileRef = useRef(null);
+  const loopRef = useRef(null);
+  const flightModeRef = useRef("leg");
   const traceAt = useRef(0);
   const legPathRef = useRef([]);
   const viewpointRef = useRef("overview");
   const flyingRef = useRef(false);
   viewpointRef.current = viewpoint;
+  flightModeRef.current = flightMode;
 
   const wind = windOn ? windCase : "00";
   const scenarioKey = `${Number(nofly)}${Number(pop)}${Number(green)}${wind}`;
@@ -129,10 +132,8 @@ export default function App() {
         pin.textContent = campus.name.replace("校区", "");
         pin.addEventListener("click", (event) => {
           event.stopPropagation();
+          // 与示例一致：进入起降点 3D 详情页，不在主图上局部缩放。
           setPad(campus);
-          map.setPitch(58);
-          map.setZoom(13.6);
-          map.setCenter([campus.lon, campus.lat]);
         });
         const marker = new AMap.Marker({
           position: [campus.lon, campus.lat],
@@ -194,55 +195,37 @@ export default function App() {
     else map.remove(buildings);
   }, [showBuildings, mapReady]);
 
-  useEffect(() => {
-    if (!pad || !padCanvas.current) return undefined;
-    const canvas = padCanvas.current;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(canvas.clientWidth, 220, false);
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#d7e3df");
-    const camera = new THREE.PerspectiveCamera(42, canvas.clientWidth / 220, 0.1, 100);
-    camera.position.set(4.2, 3.2, 5.5);
-    camera.lookAt(0, 0.4, 0);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const sun = new THREE.DirectionalLight(0xffffff, 0.9);
-    sun.position.set(3, 6, 2);
-    scene.add(sun);
-    const group = new THREE.Group();
-    const padMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.1, 2.1, 0.08, 40),
-      new THREE.MeshStandardMaterial({ color: "#6f8f86" })
-    );
-    const deck = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.5, 1.5, 0.1, 32),
-      new THREE.MeshStandardMaterial({ color: "#f4efe6" })
-    );
-    deck.position.y = 0.08;
-    const mast = new THREE.Mesh(
-      new THREE.BoxGeometry(0.15, 1.4, 0.15),
-      new THREE.MeshStandardMaterial({ color: "#14343c" })
-    );
-    mast.position.set(1.5, 0.8, 0);
-    const craft = new THREE.Mesh(
-      new THREE.ConeGeometry(0.28, 0.7, 8),
-      new THREE.MeshStandardMaterial({ color: "#c25a26" })
-    );
-    craft.position.y = 0.55;
-    craft.rotation.x = Math.PI;
-    group.add(padMesh, deck, mast, craft);
-    scene.add(group);
-    let frame = 0;
-    const spin = () => {
-      frame = requestAnimationFrame(spin);
-      group.rotation.y += 0.006;
-      renderer.render(scene, camera);
-    };
-    spin();
-    return () => {
-      cancelAnimationFrame(frame);
-      renderer.dispose();
-    };
-  }, [pad]);
+  async function showFullRoute() {
+    const map = mapObj.current;
+    const AMap = window.AMap;
+    if (!map || !AMap || !meta || origin === dest) return;
+    setPad(null);
+    setViewpoint("overview");
+    stop();
+    setPhase("idle");
+    setProgress(0);
+    setAltitude(0);
+    setSpeed(0);
+    setSoc(1);
+    const bundle = await loadLoop(origin, dest, meta.campuses);
+    loopRef.current = bundle;
+    setFlightMode("loop");
+    setRoute(bundle.summary);
+    setRemainM(bundle.summary.feasible ? bundle.summary.distance_m : 0);
+    flyingRef.current = false;
+    if (!bundle.summary.feasible) {
+      showLoopProfile(window.Loca, locaRef.current, null);
+      showFlyingLine(window.Loca, locaRef.current, null);
+      return;
+    }
+    profileRef.current = showLoopProfile(window.Loca, locaRef.current, bundle.legs, "overview");
+    legPathRef.current = bundle.path;
+    moveDrone(bundle.legs[0].climb[0], false);
+    fitPoints(map, AMap, bundle.path);
+    map.setPitch(58);
+    map.setRotation(-22);
+    if (map.getZoom() < 11) map.setZoom(11.2);
+  }
 
   const samples = useMemo(
     () => (route?.feasible ? buildBatterySeries(route, aircraft) : []),
@@ -257,13 +240,22 @@ export default function App() {
     return data;
   }
 
+  async function loadLoop(from, to, campuses) {
+    const order = resolveLoopOrder(from, to, campuses);
+    const legs = [];
+    for (let index = 0; index < order.length - 1; index += 1) {
+      legs.push(await loadLeg(order[index], order[index + 1]));
+    }
+    return assembleLoop(order, legs);
+  }
+
   function stop() {
     cancelAnimationFrame(timer.current);
     playback.current = null;
     setPaused(false);
   }
 
-  function playRoute(data, done) {
+  function playRoute(data, done, options = {}) {
     if (!data.feasible) {
       setRoute(data);
       setPhase("blocked");
@@ -346,10 +338,12 @@ export default function App() {
       setRemainM(0);
       setSoc(1);
       setPhase("done");
-      if (viewpointRef.current === "overview" && profileRef.current) {
-        setRouteViewMode(window.Loca, locaRef.current, data, profileRef.current, "overview");
+      if (!options.silentEnd) {
+        if (viewpointRef.current === "overview" && profileRef.current) {
+          setRouteViewMode(window.Loca, locaRef.current, data, profileRef.current, "overview");
+        }
+        restoreOverview();
       }
-      restoreOverview();
       play.done?.();
     };
     playback.current = {
@@ -361,6 +355,28 @@ export default function App() {
     };
     setPaused(false);
     timer.current = requestAnimationFrame(tick);
+  }
+
+  async function playLoop(bundle) {
+    const legs = bundle.legs || [];
+    let aborted = false;
+    for (let index = 0; index < legs.length; index += 1) {
+      const last = index === legs.length - 1;
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => {
+        playRoute(legs[index], () => {
+          if (flyingRef.current === "aborted") aborted = true;
+          resolve();
+        }, { silentEnd: !last });
+      });
+      if (aborted) return;
+    }
+    loopRef.current = bundle;
+    setFlightMode("loop");
+    setRoute(bundle.summary);
+    profileRef.current = showLoopProfile(window.Loca, locaRef.current, bundle.legs, "overview");
+    legPathRef.current = bundle.path;
+    restoreOverview();
   }
 
   function pauseFlight() {
@@ -381,6 +397,7 @@ export default function App() {
 
   function endFlight() {
     cancelAnimationFrame(timer.current);
+    const pendingDone = playback.current?.done;
     playback.current = null;
     flyingRef.current = false;
     setPaused(false);
@@ -390,12 +407,24 @@ export default function App() {
     setSpeed(0);
     setRemainM(0);
     setSoc(1);
-    const current = route;
-    if (current?.feasible) {
-      profileRef.current = showRouteProfile(window.Loca, locaRef.current, current, "overview");
-      moveDrone(current.climb[0], false);
+    if (flightModeRef.current === "loop" && loopRef.current?.summary?.feasible) {
+      const bundle = loopRef.current;
+      setRoute(bundle.summary);
+      profileRef.current = showLoopProfile(window.Loca, locaRef.current, bundle.legs, "overview");
+      legPathRef.current = bundle.path;
+      moveDrone(bundle.legs[0].climb[0], false);
+    } else {
+      const current = route;
+      if (current?.feasible && !current.loop) {
+        profileRef.current = showRouteProfile(window.Loca, locaRef.current, current, "overview");
+        moveDrone(current.climb[0], false);
+      }
     }
     restoreOverview();
+    // 解除 playLoop 等待，并标记中止，避免继续下一段。
+    flyingRef.current = "aborted";
+    pendingDone?.();
+    flyingRef.current = false;
   }
 
   function moveDrone(point, cockpit) {
@@ -466,6 +495,18 @@ export default function App() {
 
   async function playSelection() {
     stop();
+    if (flightModeRef.current === "loop") {
+      const bundle = loopRef.current || await loadLoop(origin, dest, meta.campuses);
+      loopRef.current = bundle;
+      setFlightMode("loop");
+      if (!bundle.summary.feasible) {
+        setRoute(bundle.summary);
+        setPhase("blocked");
+        return;
+      }
+      await playLoop(bundle);
+      return;
+    }
     const data = await loadLeg(origin, dest);
     playRoute(data);
   }
@@ -475,6 +516,8 @@ export default function App() {
     if (origin === dest) {
       stop();
       setRoute(null);
+      setFlightMode("leg");
+      loopRef.current = null;
       setPhase("idle");
       setProgress(0);
       showRouteProfile(window.Loca, locaRef.current, null);
@@ -483,6 +526,8 @@ export default function App() {
     }
     let cancelled = false;
     stop();
+    setFlightMode("leg");
+    loopRef.current = null;
     setPhase("idle");
     setProgress(0);
     setAltitude(0);
@@ -520,11 +565,6 @@ export default function App() {
     // Load the selected route for the charts. Flight starts only from the button.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenarioKey, origin, dest, meta, mapReady]);
-
-  const campusName = useMemo(() => {
-    const table = Object.fromEntries((meta?.campuses || []).map((item) => [item.id, item.name]));
-    return (id) => table[id] || id;
-  }, [meta]);
 
   useEffect(() => {
     if (!menu) return undefined;
@@ -638,8 +678,15 @@ export default function App() {
           </div>
         </section>
         <div className="flight-actions">
+          <button
+            className={`ghost${flightMode === "loop" ? " active" : ""}`}
+            disabled={!mapReady || origin === dest}
+            onClick={showFullRoute}
+          >
+            展示整条航路
+          </button>
           <button className="play start" disabled={!canStart} onClick={playSelection}>
-            {flying ? "飞行中" : "开始飞行"}
+            {flying ? "飞行中" : (flightMode === "loop" ? "环飞闭环" : "开始飞行")}
           </button>
           <button className="ghost" disabled={!flying} onClick={pauseFlight}>{paused ? "继续" : "暂停"}</button>
           <button className="ghost" disabled={!flying} onClick={endFlight}>结束</button>
@@ -647,19 +694,24 @@ export default function App() {
       </header>
       <aside className="panel">
         <section className="card">
-          <h2>本段</h2>
+          <h2>{flightMode === "loop" || route?.loop ? "闭环" : "本段"}</h2>
           {origin === dest && <p className="note">起点和终点需要是不同校区。</p>}
           {origin !== dest && !route && <p className="note">正在读取这条航段。</p>}
           {route?.feasible === false && <p className="warn">{route.reason}</p>}
           {route?.feasible && (
-            <dl className="metrics">
-              <div><dt>航程</dt><dd>{(route.distance_m / 1000).toFixed(2)}<small> km</small></dd></div>
-              <div><dt>飞行</dt><dd>{(route.time_s / 60).toFixed(1)}<small> 分</small></dd></div>
-              <div><dt>高度</dt><dd>{route.height_m}<small> 米</small></dd></div>
-              <div><dt>暴露</dt><dd>{(route.exposure_m / 1000).toFixed(2)}</dd></div>
-              <div><dt>植被</dt><dd>{(route.green_ratio * 100).toFixed(0)}<small> %</small></dd></div>
-              <div><dt>低覆盖</dt><dd>{(route.low_coverage_m / 1000).toFixed(1)}<small> km</small></dd></div>
-            </dl>
+            <>
+              {route.loop && route.orderLabel && (
+                <p className="note">方向：{route.orderLabel}</p>
+              )}
+              <dl className="metrics">
+                <div><dt>航程</dt><dd>{(route.distance_m / 1000).toFixed(2)}<small> km</small></dd></div>
+                <div><dt>飞行</dt><dd>{(route.time_s / 60).toFixed(1)}<small> 分</small></dd></div>
+                <div><dt>高度</dt><dd>{route.height_m}<small> 米</small></dd></div>
+                <div><dt>暴露</dt><dd>{(route.exposure_m / 1000).toFixed(2)}</dd></div>
+                <div><dt>植被</dt><dd>{(route.green_ratio * 100).toFixed(0)}<small> %</small></dd></div>
+                <div><dt>低覆盖</dt><dd>{(route.low_coverage_m / 1000).toFixed(1)}<small> km</small></dd></div>
+              </dl>
+            </>
           )}
         </section>
         <section className="card">
@@ -743,19 +795,57 @@ export default function App() {
           </div>
         )}
         {viewpoint === "cockpit" && <div className="hud"><span /></div>}
-        {pad && (
-          <aside className="pad">
-            <header>
-              <strong>{campusName(pad.id)}起降场</strong>
-              <button onClick={() => setPad(null)}>关闭</button>
-            </header>
-            <canvas ref={padCanvas} />
-            <p className="note">示意起降坪，不是实景测绘。</p>
-          </aside>
-        )}
       </div>
+      {pad && (
+        <SiteDetail campus={pad} onBack={() => setPad(null)} />
+      )}
     </div>
   );
+}
+
+/** 以「起点→终点」为第一段，第三人作为中转，构成三校区闭环。 */
+function resolveLoopOrder(origin, dest, campuses = []) {
+  const ids = (campuses || []).map((campus) => campus.id);
+  const third = ids.find((id) => id !== origin && id !== dest) || ids[0];
+  return [origin, dest, third, origin];
+}
+
+function campusShort(id) {
+  return ({ main: "主", junshan: "军山", tongji: "同济" })[id] || id;
+}
+
+function assembleLoop(order, legs) {
+  const feasible = legs.every((leg) => leg?.feasible);
+  const path = [];
+  for (const leg of legs) {
+    if (!leg?.cruise) continue;
+    for (const point of leg.cruise) path.push([point[0], point[1]]);
+  }
+  const distance_m = legs.reduce((sum, leg) => sum + (leg.distance_m || 0), 0);
+  const time_s = legs.reduce((sum, leg) => sum + (leg.time_s || 0), 0);
+  const exposure_m = legs.reduce((sum, leg) => sum + (leg.exposure_m || 0), 0);
+  const low_coverage_m = legs.reduce((sum, leg) => sum + (leg.low_coverage_m || 0), 0);
+  const green_ratio = distance_m
+    ? legs.reduce((sum, leg) => sum + (leg.green_ratio || 0) * (leg.distance_m || 0), 0) / distance_m
+    : 0;
+  const first = legs[0];
+  const summary = {
+    feasible,
+    loop: true,
+    order,
+    orderLabel: order.map(campusShort).join(" → "),
+    reason: feasible ? undefined : (legs.find((leg) => !leg?.feasible)?.reason || "闭环中有不可飞航段"),
+    distance_m,
+    time_s,
+    height_m: first?.height_m || 0,
+    exposure_m,
+    green_ratio,
+    low_coverage_m,
+    climb: first?.climb || [],
+    cruise: path.map((point) => [point[0], point[1], first?.height_m || 0]),
+    descent: legs[legs.length - 1]?.descent || [],
+  };
+  return { order, legs, path, summary };
 }
 
 function shiftBy(point, heading, meters) {
