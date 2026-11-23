@@ -1,0 +1,14 @@
+{
+  "aircraft": "丰舟90（20 kg / 70 km）",
+  "aircraft_id": "FZ90_20kg",
+  "wind_case": "case02_median",
+  "fast": {
+    "lambda_p": 0.0,
+    "lambda_g": 0.0
+  },
+  "safe": {
+    "lambda_p": 1.0,
+    "lambda_g": 0.5
+  },
+  "amap_note": "坐标已转为 GCJ-02，可直接叠加高德地图"
+}

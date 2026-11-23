@@ -1,21 +1,28 @@
-// Engineering-style UAV battery series for the chart and HUD.
-// Energy still follows the course ledger: 0.8 × published range, with
-// climb/descent each costing 10 × height meters of cruise-equivalent.
-// The time history uses higher climb power and a mild Peukert bend so the
-// curve looks like a typical LiPo flight log, not a straight line.
+// Battery curve for the chart and HUD.
+// Usable range follows payload (20 kg / 70 km, 10 kg / 110 km) × 0.8.
+// Cruise energy follows route length, then the wind-stretched flight time
+// (actual time ÷ still-air time at 30 m/s) and a wind-case power factor.
+// Climb and descent stay 10 × height meters of cruise-equivalent.
+// The trace front-loads climb and bends like a LiPo gauge.
 
 const RANGE_KM = { "20kg": 70, "10kg": 110 };
 const USABLE = 0.8;
 const CLIMB_SHARE = 0.2;
 const DESCENT_SHARE = 0.2;
+const AIRSPEED = 30;
+const WIND_LOAD = { "00": 1, "01": 1.07, "02": 1.15, "03": 1.28 };
 
-export function buildBatterySeries(route, aircraft) {
+export function buildBatterySeries(route, aircraft, wind = "00") {
   if (!route?.feasible) return [];
   const published = RANGE_KM[aircraft] || 70;
   const usable = USABLE * published * 1000;
-  const climbEq = 10 * route.height_m;
-  const cruiseEq = route.distance_m;
-  const descentEq = 10 * route.height_m;
+  const distance = route.distance_m || 0;
+  const stillSeconds = distance / AIRSPEED;
+  const timeRatio = stillSeconds > 0 && route.time_s > 0 ? route.time_s / stillSeconds : 1;
+  const windLoad = WIND_LOAD[wind] ?? 1;
+  const climbEq = 10 * (route.height_m || 0);
+  const cruiseEq = distance * timeRatio * windLoad;
+  const descentEq = 10 * (route.height_m || 0);
   const total = climbEq + cruiseEq + descentEq;
   // Relative electrical power by phase (cruise = 1). Climb draws harder.
   const power = { climb: 2.15, cruise: 1, descent: 0.88 };

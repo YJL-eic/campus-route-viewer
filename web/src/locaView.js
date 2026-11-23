@@ -2,6 +2,13 @@ const EMPTY = { type: "FeatureCollection", features: [] };
 
 const POP_YELLOW = ["#fff8d6", "#ffe14a", "#f5c400", "#e0a100", "#c48400"];
 const VEG_GREEN = ["#d9f0d3", "#a6dba0", "#5aae61", "#1b7837", "#00441b"];
+// 西区闭环：逆红 / 顺蓝；东区闭环：逆橙 / 顺绿
+export const LOOP_WEST_CCW = "#e23b3b";
+export const LOOP_WEST_CW = "#2f6bff";
+export const LOOP_EAST_CCW = "#f08a24";
+export const LOOP_EAST_CW = "#1faa5c";
+export const LOOP_CCW = LOOP_WEST_CCW;
+export const LOOP_CW = LOOP_WEST_CW;
 
 export function createLocaView(Loca, loca, nofly, campuses = []) {
   const lights = setupMultiLights(Loca, loca, campuses);
@@ -54,7 +61,7 @@ export function createLocaView(Loca, loca, nofly, campuses = []) {
 
   const popHex = hexLayer(Loca, 129, efficientSource(Loca, "/data/population.pbf"), POP_YELLOW, 280);
   const vegHex = hexLayer(Loca, 126, efficientSource(Loca, "/data/vegetation.pbf"), VEG_GREEN, 280);
-  // 丰舟90 V2 终端空域：R25/R50 柱体 + 南北走廊 + 160/210 保护带。
+  // 丰舟90 V2 终端空域：R25/R50 柱体 + 沿航线方向走廊 + 160/210 保护带。
   const pads = createTerminalPadLayers(Loca, campuses);
   // 高德 Loca 贴地呼吸红圈（官方 breath_red 序列帧）。
   const breath = createBreathMarkers(Loca, campuses);
@@ -78,6 +85,11 @@ export function createLocaView(Loca, loca, nofly, campuses = []) {
   // Overview / flight use Loca LineLayer with altitude (高层线路图).
   const plan = lineLayer(Loca, 132, "rgba(14, 116, 144, 0.35)");
   const trace = lineLayer(Loca, 146, "#c25a26");
+  // 四条闭环：西区逆红/顺蓝，东区逆橙/顺绿；同 OD 保留 210/160 高度差。
+  const loopWestCcw = lineLayer(Loca, 133, LOOP_WEST_CCW);
+  const loopWestCw = lineLayer(Loca, 134, LOOP_WEST_CW);
+  const loopEastCcw = lineLayer(Loca, 135, LOOP_EAST_CCW);
+  const loopEastCw = lineLayer(Loca, 136, LOOP_EAST_CW);
 
   loca.add(heat);
   loca.add(veg);
@@ -89,9 +101,19 @@ export function createLocaView(Loca, loca, nofly, campuses = []) {
   if (breath.ring) loca.add(breath.ring);
   loca.add(pulse);
   loca.add(plan);
+  loca.add(loopWestCcw);
+  loca.add(loopWestCw);
+  loca.add(loopEastCcw);
+  loca.add(loopEastCw);
   loca.add(trace);
   loca.animate.start();
-  return { loca, zones, heat, veg, popHex, vegHex, pads, breath, lights, pulse, plan, trace };
+  return {
+    loca, zones, heat, veg, popHex, vegHex, pads, breath, lights,
+    pulse, plan, loopWestCcw, loopWestCw, loopEastCcw, loopEastCw, trace,
+    // 兼容旧字段名
+    loopCcw: loopWestCcw,
+    loopCw: loopWestCw,
+  };
 }
 
 /** 三校区起降点：贴地红点 + 官方呼吸红圈闪烁（ScatterLayer）。 */
@@ -199,7 +221,7 @@ function setupMultiLights(Loca, loca, campuses) {
   return lights;
 }
 
-/** Planning values from 终端空域平面与剖面.pptx (丰舟90 V2). */
+/** 城市货运终端空域_100米宽方案：紧凑走廊（待验证比选尺寸）。 */
 const TERM = {
   rInner: 25,
   hInner: 60,
@@ -209,15 +231,19 @@ const TERM = {
   convertH: 50,
   protectV: 10,
   wMin: 50,
-  wMax: 200,
-  expandRate: 0.125,
-  len210: 4000,
+  wMax: 100,
+  // W(s)=min(50+|s|/24, 100)；|s|=1200 处展至全宽 100
+  expandRate: 1 / 24,
+  // 南北两侧各延伸 2000 m（走廊长 2 km）；160 层单侧 1500
+  len210: 2000,
   cruise210: 210,
-  ramp210: 3200,
-  len160: 3000,
+  ramp210: 1600,
+  len160: 1500,
   cruise160: 160,
-  ramp160: 2200,
-  join: 500,
+  ramp160: 1100,
+  join: 100,
+  // 爬降坡度 1:10（水平:垂直）
+  climbRun: 10,
 };
 
 function createTerminalPadLayers(Loca, campuses) {
@@ -314,22 +340,26 @@ function terminalCylinders(campuses, radius) {
 function terminalCorridors(campuses) {
   return {
     type: "FeatureCollection",
-    features: campuses.map((campus) => ({
-      type: "Feature",
-      properties: { id: campus.id, name: campus.name, kind: "corridor" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [corridorRing(campus.lon, campus.lat, -TERM.len210, TERM.len210)],
-      },
-    })),
+    features: campuses.map((campus) => {
+      const heading = padHeadingDeg(campus, campuses);
+      return {
+        type: "Feature",
+        properties: { id: campus.id, name: campus.name, kind: "corridor", heading },
+        geometry: {
+          type: "Polygon",
+          coordinates: [corridorRing(campus.lon, campus.lat, -TERM.len210, TERM.len210, 48, heading)],
+        },
+      };
+    }),
   };
 }
 
-/** ±10 m vertical protection tube along N–S terminal (示意分段体). */
+/** ±10 m vertical protection tube along route-aligned terminal axis. */
 function terminalBands(campuses, cruiseH, halfLen) {
   const features = [];
   const step = 200;
   campuses.forEach((campus) => {
+    const heading = padHeadingDeg(campus, campuses);
     for (let s0 = -halfLen; s0 < halfLen; s0 += step) {
       const s1 = Math.min(halfLen, s0 + step);
       const mid = (s0 + s1) / 2;
@@ -341,12 +371,13 @@ function terminalBands(campuses, cruiseH, halfLen) {
           id: campus.id,
           kind: "band",
           cruise: cruiseH,
+          heading,
           altitude: Math.max(4, h - TERM.protectV),
           height: TERM.protectV * 2,
         },
         geometry: {
           type: "Polygon",
-          coordinates: [segmentRect(campus.lon, campus.lat, s0, s1, halfW)],
+          coordinates: [segmentRect(campus.lon, campus.lat, s0, s1, halfW, heading)],
         },
       });
     }
@@ -354,37 +385,72 @@ function terminalBands(campuses, cruiseH, halfLen) {
   return { type: "FeatureCollection", features };
 }
 
+/** 航向：自北顺时针（度）。优先用 campus.heading；否则取指向其他航路枢纽的平均方向。 */
+function padHeadingDeg(campus, campuses = []) {
+  if (Number.isFinite(campus?.heading)) return ((campus.heading % 360) + 360) % 360;
+  const hubs = routeHubs(campuses);
+  const myHub = campus.routeId || campus.id;
+  const others = hubs.filter((hub) => hub.id !== myHub);
+  if (!others.length) return 0;
+  let east = 0;
+  let north = 0;
+  others.forEach((hub) => {
+    const dE = (hub.lon - campus.lon) * 111320 * Math.cos((campus.lat * Math.PI) / 180);
+    const dN = (hub.lat - campus.lat) * 110540;
+    const len = Math.hypot(dE, dN) || 1;
+    east += dE / len;
+    north += dN / len;
+  });
+  return ((Math.atan2(east, north) * 180) / Math.PI + 360) % 360;
+}
+
+function routeHubs(campuses = []) {
+  const groups = new Map();
+  campuses.forEach((campus) => {
+    const id = campus.routeId || campus.id;
+    if (!groups.has(id)) groups.set(id, []);
+    groups.get(id).push(campus);
+  });
+  return [...groups.entries()].map(([id, pads]) => ({
+    id,
+    lon: pads.reduce((sum, pad) => sum + pad.lon, 0) / pads.length,
+    lat: pads.reduce((sum, pad) => sum + pad.lat, 0) / pads.length,
+  }));
+}
+
 function trackHeight(s, cruiseH) {
   const abs = Math.abs(s);
   if (abs <= TERM.convert) return TERM.convertH;
-  const rampEnd = TERM.convert + (cruiseH - TERM.convertH) * 20;
-  if (abs < rampEnd) return TERM.convertH + (abs - TERM.convert) / 20;
+  const run = TERM.climbRun || 10;
+  const rampEnd = TERM.convert + (cruiseH - TERM.convertH) * run;
+  if (abs < rampEnd) return TERM.convertH + (abs - TERM.convert) / run;
   return cruiseH;
 }
 
 function corridorWidth(s) {
+  // 紧凑方案：中心窄口 50，按 |s|/24 展开，外端全宽 100
   return Math.min(TERM.wMin + TERM.expandRate * Math.abs(s), TERM.wMax);
 }
 
-function corridorRing(lon, lat, sMin, sMax, samples = 48) {
+function corridorRing(lon, lat, sMin, sMax, samples = 48, headingDeg = 0) {
   const left = [];
   const right = [];
   for (let i = 0; i <= samples; i += 1) {
     const s = sMin + ((sMax - sMin) * i) / samples;
     const halfW = corridorWidth(s) / 2;
-    left.push(projectOffset(lon, lat, -halfW, s, 0));
-    right.push(projectOffset(lon, lat, halfW, s, 0));
+    left.push(projectAlong(lon, lat, -halfW, s, headingDeg));
+    right.push(projectAlong(lon, lat, halfW, s, headingDeg));
   }
   return [...left, ...right.reverse(), left[0]];
 }
 
-function segmentRect(lon, lat, s0, s1, halfW) {
+function segmentRect(lon, lat, s0, s1, halfW, headingDeg = 0) {
   return [
-    projectOffset(lon, lat, -halfW, s0, 0),
-    projectOffset(lon, lat, halfW, s0, 0),
-    projectOffset(lon, lat, halfW, s1, 0),
-    projectOffset(lon, lat, -halfW, s1, 0),
-    projectOffset(lon, lat, -halfW, s0, 0),
+    projectAlong(lon, lat, -halfW, s0, headingDeg),
+    projectAlong(lon, lat, halfW, s0, headingDeg),
+    projectAlong(lon, lat, halfW, s1, headingDeg),
+    projectAlong(lon, lat, -halfW, s1, headingDeg),
+    projectAlong(lon, lat, -halfW, s0, headingDeg),
   ];
 }
 
@@ -392,18 +458,22 @@ function circleRing(lon, lat, radius, steps = 32) {
   const ring = [];
   for (let step = 0; step <= steps; step += 1) {
     const theta = (step / steps) * Math.PI * 2;
-    ring.push(projectOffset(lon, lat, Math.cos(theta) * radius, Math.sin(theta) * radius, 0));
+    ring.push(projectAlong(lon, lat, Math.cos(theta) * radius, Math.sin(theta) * radius, 0));
   }
   return ring;
 }
 
-function projectOffset(lon, lat, eastM, northM, angleDeg = 0) {
-  const rad = (angleDeg * Math.PI) / 180;
-  const xr = eastM * Math.cos(rad) - northM * Math.sin(rad);
-  const yr = eastM * Math.sin(rad) + northM * Math.cos(rad);
+/** localX 横向（右为正），localY 沿航向（headingDeg：自北顺时针）。 */
+function projectAlong(lon, lat, localX, localY, headingDeg = 0) {
+  const rad = (headingDeg * Math.PI) / 180;
+  const sin = Math.sin(rad);
+  const cos = Math.cos(rad);
+  // 航向轴 → (sin, cos)；横向右轴 → (cos, -sin)
+  const eastM = localY * sin + localX * cos;
+  const northM = localY * cos - localX * sin;
   const mLon = 111320 * Math.cos((lat * Math.PI) / 180);
   const mLat = 110540;
-  return [lon + xr / mLon, lat + yr / mLat];
+  return [lon + eastM / mLon, lat + northM / mLat];
 }
 
 /** Loca 高效数据源 GeoBufferSource；若运行时不可用则回退到同名 geojson。 */
@@ -515,11 +585,13 @@ export function showFlyingLine(Loca, view, route) {
 export function showRouteProfile(Loca, view, route, mode = "overview") {
   if (!view?.plan) return null;
   if (!route?.feasible) {
+    hideLoopLayers(view);
     view.plan.hide();
     view.trace.hide();
     view.pulse?.hide();
     return null;
   }
+  hideLoopLayers(view);
   const profile = buildProfile(route);
   view.pulse?.hide();
   applyRouteMode(Loca, view, route, profile, mode);
@@ -531,11 +603,13 @@ export function showLoopProfile(Loca, view, legs, mode = "overview") {
   if (!view?.plan) return null;
   const feasible = (legs || []).filter((leg) => leg?.feasible && leg.cruise?.length);
   if (!feasible.length) {
+    hideLoopLayers(view);
     view.plan.hide();
     view.trace.hide();
     view.pulse?.hide();
     return null;
   }
+  hideLoopLayers(view);
   const profiles = feasible.map((leg) => buildProfile(leg));
   const all = profiles.flatMap((profile) => profile.all);
   view.pulse?.hide();
@@ -552,6 +626,97 @@ export function showLoopProfile(Loca, view, legs, mode = "overview") {
     styleHighLine(view.trace, "#c25a26", 8, FLIGHT_Z);
   }
   return { profiles, all, height: Math.max(...profiles.map((profile) => profile.height || 0)) };
+}
+
+/**
+ * 展示东西校区各一对闭环：
+ * 西区逆红 / 西区顺蓝 / 东区逆橙 / 东区顺绿。
+ */
+export function showDualLoopProfile(Loca, view, loops = {}) {
+  const {
+    westCcwLegs,
+    westCwLegs,
+    eastCcwLegs,
+    eastCwLegs,
+    // 兼容旧调用
+    ccwLegs,
+    cwLegs,
+  } = loops;
+  if (!view?.loopWestCcw && !view?.loopCcw) return null;
+
+  const westCcw = profilesFromLegs(westCcwLegs || ccwLegs);
+  const westCw = profilesFromLegs(westCwLegs || cwLegs);
+  const eastCcw = profilesFromLegs(eastCcwLegs);
+  const eastCw = profilesFromLegs(eastCwLegs);
+  if (![westCcw, westCw, eastCcw, eastCw].some((list) => list.length)) {
+    hideLoopLayers(view);
+    view.plan?.hide();
+    view.trace?.hide();
+    view.pulse?.hide();
+    return null;
+  }
+  view.pulse?.hide();
+  view.plan?.hide();
+  view.trace?.hide();
+  view.trace?.setSource(new Loca.GeoJSONSource({ data: EMPTY }));
+
+  paintLoopLayer(view.loopWestCcw || view.loopCcw, westCcw, LOOP_WEST_CCW, 11);
+  paintLoopLayer(view.loopWestCw || view.loopCw, westCw, LOOP_WEST_CW, 9);
+  paintLoopLayer(view.loopEastCcw, eastCcw, LOOP_EAST_CCW, 10);
+  paintLoopLayer(view.loopEastCw, eastCw, LOOP_EAST_CW, 8);
+
+  const allProfiles = [...westCcw, ...westCw, ...eastCcw, ...eastCw];
+  const heights = allProfiles.map((profile) => profile.height || 0);
+  return {
+    dual: true,
+    quad: true,
+    westCcw,
+    westCw,
+    eastCcw,
+    eastCw,
+    ccw: westCcw,
+    cw: westCw,
+    all: allProfiles.flatMap((profile) => profile.all),
+    height: heights.length ? Math.max(...heights) : 0,
+    heights: {
+      westCcw: uniqueHeights(westCcw),
+      westCw: uniqueHeights(westCw),
+      eastCcw: uniqueHeights(eastCcw),
+      eastCw: uniqueHeights(eastCw),
+    },
+  };
+}
+
+function profilesFromLegs(legs) {
+  return (legs || []).filter((leg) => leg?.feasible && leg.cruise?.length).map(buildProfile);
+}
+
+function uniqueHeights(profiles) {
+  return [...new Set(profiles.map((profile) => profile.height).filter(Boolean))];
+}
+
+function paintLoopLayer(layer, profiles, color, lineWidth) {
+  if (!layer) return;
+  if (!profiles.length) {
+    layer.hide();
+    layer.setSource(new Loca.GeoJSONSource({ data: EMPTY }));
+    return;
+  }
+  const all = profiles.flatMap((profile) => profile.all);
+  layer.show();
+  layer.setSource(new Loca.GeoJSONSource({ data: lineData(all) }));
+  styleHighLine(layer, color, lineWidth, OVERVIEW_Z);
+}
+
+function hideLoopLayers(view) {
+  const layers = [
+    view?.loopWestCcw, view?.loopWestCw, view?.loopEastCcw, view?.loopEastCw,
+    view?.loopCcw, view?.loopCw,
+  ];
+  layers.forEach((layer) => {
+    layer?.hide();
+    layer?.setSource?.(new Loca.GeoJSONSource({ data: EMPTY }));
+  });
 }
 
 export function setRouteViewMode(Loca, view, route, profile, mode) {

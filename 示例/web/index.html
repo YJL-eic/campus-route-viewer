@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>三校区低空货运航路展示</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="topbar">
+    <div class="brand">
+      <h1>三校区低空货运航路</h1>
+      <p>丰舟90 · 南北双向分层航道 · 高德三维底图</p>
+    </div>
+    <div class="controls">
+      <button id="btnFast" class="btn btn-fast btn-mode" type="button">最快路线</button>
+      <button id="btnSafe" class="btn btn-safe btn-mode" type="button">安全路线</button>
+      <button id="btnClear" class="btn btn-clear" type="button">清除航路</button>
+    </div>
+  </div>
+
+  <aside class="side">
+    <div class="legend">
+      <h2>图例 · 双向分层航道</h2>
+      <div class="legend-item"><span class="swatch northbound"></span>南→北航路 · 巡航 210 m（保护带 200–220）</div>
+      <div class="legend-item"><span class="swatch southbound"></span>北→南航路 · 巡航 160 m（保护带 150–170）</div>
+      <div class="legend-item"><span class="swatch fast"></span>最快路线几何（仅时间）</div>
+      <div class="legend-item"><span class="swatch safe"></span>安全路线几何（时间+人口+绿地）</div>
+      <div class="legend-item"><span class="dot main"></span>主校区起降点</div>
+      <div class="legend-item"><span class="dot tongji"></span>同济校区起降点</div>
+      <div class="legend-item"><span class="dot junshan"></span>军山校区起降点</div>
+      <div class="legend-item"><span class="dot hub"></span>三校区中转站</div>
+      <div class="hint" style="margin-top:8px">
+        同一走廊上下叠置两条航道（非横向平行）。层差 50 m，保护带净距 30 m。
+        右键旋转、Ctrl+拖动俯仰，放大后可见楼块与终端柱体。
+      </div>
+    </div>
+    <div class="info" id="terminalInfo">
+      <h2>终端空域（规划采用值）</h2>
+      <div class="info-row"><span>垂直起降空域</span><span>R25 × H60</span></div>
+      <div class="info-row"><span>外围保护柱体</span><span>R50 × H80</span></div>
+      <div class="info-row"><span>名义转换高度</span><span>50 m（保护 40–60）</span></div>
+      <div class="info-row"><span>爬升/下降坡度</span><span>1:20</span></div>
+      <div class="info-row"><span>210 m 层单侧</span><span>4000 m</span></div>
+      <div class="info-row"><span>160 m 层单侧</span><span>3000 m</span></div>
+      <div class="hint">终端按单机占用；两层共用近场段，不以巡航分层替代进离场隔离。</div>
+    </div>
+    <div class="info" id="routeInfo"></div>
+  </aside>
+
+  <div id="keyBanner" class="key-banner">
+    <h2>需要配置高德 Key</h2>
+    <p>
+      请到
+      <a href="https://console.amap.com/" target="_blank" rel="noopener" style="color:#7dcea0">高德开放平台</a>
+      创建 <strong>Web端（JS API）</strong> Key，并写入
+      <code>web/config.js</code> 的 <code>amapKey</code>。
+      若开启了安全密钥，同时填写 <code>amapSecurityCode</code>。
+      然后用本地静态服务器打开本页面（见 README）。
+    </p>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

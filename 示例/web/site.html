@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>起降点 3D 视图</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="detail-layout">
+    <div class="detail-map-wrap">
+      <div id="map3d"></div>
+      <button id="btnBack" class="btn btn-clear back-btn" type="button">← 返回航路图</button>
+    </div>
+    <aside class="detail-panel">
+      <h2>站点详情</h2>
+      <h1 id="siteTitle" style="margin:0 0 6px;font-size:22px;font-family:var(--font-display)">起降点</h1>
+      <p id="siteMeta" class="hint" style="margin-top:0">高德 3D</p>
+      <div class="info-row"><span>视图</span><span>高德三维 + 建筑楼块</span></div>
+      <div class="info-row"><span>设计图</span><span>待上传</span></div>
+      <div id="designSlot"></div>
+      <p class="hint">
+        说明：左侧为高德 3D 地图（含周边建筑模型数据）。右侧设计图区域目前为占位，
+        你提供设计图后，把文件放到 <code>web/assets/</code>，并在 <code>data/nodes.json</code>
+        对应站点填写 <code>design_image</code> 即可。
+      </p>
+    </aside>
+  </div>
+
+  <div id="keyBanner" class="key-banner">
+    <h2>需要配置高德 Key</h2>
+    <p>请先在 <code>web/config.js</code> 填写高德 JS API Key，再打开本页。</p>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>

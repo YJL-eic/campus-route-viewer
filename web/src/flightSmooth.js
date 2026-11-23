@@ -1,5 +1,29 @@
 const CLIMB_SHARE = 0.2;
 const DESCENT_SHARE = 0.2;
+const TAKEOFF_MPS = 1.5;
+const CRUISE_MPS = 30;
+const LANDING_MPS = 2;
+const CRUISE_SHARE = 1 - CLIMB_SHARE - DESCENT_SHARE;
+
+function easeIntegral(fraction) {
+  const x = clamp(fraction, 0, 1);
+  return x ** 3 - 0.5 * x ** 4;
+}
+
+function climbIntegral(fraction) {
+  const x = clamp(fraction, 0, 1);
+  return TAKEOFF_MPS * x + (CRUISE_MPS - TAKEOFF_MPS) * easeIntegral(x);
+}
+
+function descentIntegral(fraction) {
+  const x = clamp(fraction, 0, 1);
+  return CRUISE_MPS * x + (LANDING_MPS - CRUISE_MPS) * easeIntegral(x);
+}
+
+const CLIMB_I = CLIMB_SHARE * climbIntegral(1);
+const CRUISE_I = CRUISE_SHARE * CRUISE_MPS;
+const DESCENT_I = DESCENT_SHARE * descentIntegral(1);
+const SPEED_I = CLIMB_I + CRUISE_I + DESCENT_I;
 
 export function prepareTrack(profile) {
   if (!profile?.all?.length) return null;
@@ -48,16 +72,20 @@ export function easeInOut(t) {
   return x * x * (3 - 2 * x);
 }
 
-function timeToPath(ratio, track) {
-  if (ratio <= CLIMB_SHARE) {
-    return easeInOut(ratio / CLIMB_SHARE) * track.climbFrac;
+function timeToPath(ratio) {
+  // 位移是速度的积分。爬升末端和平飞起点都是巡航速度，平飞末端和降落起点也一样，镜头不会在交界处急停再猛冲。
+  const r = clamp(ratio, 0, 1);
+  let covered;
+  if (r <= CLIMB_SHARE) {
+    covered = CLIMB_SHARE * climbIntegral(r / CLIMB_SHARE);
+  } else if (r >= 1 - DESCENT_SHARE) {
+    const step = (r - (1 - DESCENT_SHARE)) / DESCENT_SHARE;
+    covered = CLIMB_I + CRUISE_I + DESCENT_SHARE * descentIntegral(step);
+  } else {
+    const step = (r - CLIMB_SHARE) / CRUISE_SHARE;
+    covered = CLIMB_I + CRUISE_SHARE * CRUISE_MPS * step;
   }
-  if (ratio >= 1 - DESCENT_SHARE) {
-    const step = easeInOut((ratio - (1 - DESCENT_SHARE)) / DESCENT_SHARE);
-    return track.climbFrac + track.cruiseFrac + step * track.descentFrac;
-  }
-  const step = (ratio - CLIMB_SHARE) / (1 - CLIMB_SHARE - DESCENT_SHARE);
-  return track.climbFrac + step * track.cruiseFrac;
+  return covered / SPEED_I;
 }
 
 function sampleTrack(track, pathT) {
